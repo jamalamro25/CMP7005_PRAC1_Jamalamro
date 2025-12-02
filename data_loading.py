@@ -1,4 +1,3 @@
-%%writefile data_loading.py
 import streamlit as st
 import pandas as pd
 from data_utils import load_data
@@ -25,3 +24,4 @@ def app():
     else:
         st.warning("Columns with missing values:")
         st.dataframe(missing.to_frame("Missing_Count"))
+
