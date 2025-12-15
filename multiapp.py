@@ -18,7 +18,7 @@ class MultiApp:
     def run(self):
         titles = [a["title"] for a in self.apps]
 
-        st.sidebar.title("🌍 Air Quality Navigator")
+        st.sidebar.title("<< Navigator >>")
         choice = st.sidebar.radio("Go to", titles)
 
         for app in self.apps:
