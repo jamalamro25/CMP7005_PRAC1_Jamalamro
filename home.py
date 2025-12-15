@@ -1,45 +1,112 @@
 import streamlit as st
-from data_utils import load_data
+import pandas as pd
 
+# ===============================
+# HOME PAGE APP
+# ===============================
 def app():
-    df = load_data()
 
-    st.markdown(
-        """
-        <h1 style="color:#0f4c75;">India Air Quality Intelligence 🌫️</h1>
-        <p style="font-size:1.05rem;">
-        An interactive end-to-end platform for exploring, modelling, and visualizing India's air quality
-        between 2015–2020. Built as part of the CMP7005 Programming for Data Analysis module.
+    # ===============================
+    # PAGE TITLE & INTRO
+    # ===============================
+    st.markdown("""
+        <h1 style='text-align:center; color:white; font-size:42px;'>
+            🌏 India Air Quality Intelligence
+        </h1>
+        <p style='text-align:center; color:#cccccc; font-size:18px;'>
+            An interactive analytics platform for exploring, modelling, 
+            and visualising India’s air quality trends (2015–2020).<br>
+            Developed as part of the <b>CMP7005 – Programming for Data Analysis</b> module.
         </p>
-        """,
-        unsafe_allow_html=True
-    )
+        <hr style='border:1px solid #333; margin-top:20px;'>
+    """, unsafe_allow_html=True)
 
-    st.markdown("### 🔍 Project Goals")
-    st.markdown(
-        """
-        - Monitor and analyse pollution patterns across Indian cities  
-        - Predict AQI using **Multiple Linear Regression**  
-        - Classify AQI categories using a **Decision Tree classifier**  
-        - Provide an interactive dashboard for stakeholders and decision makers  
-        """
-    )
+    # ===============================
+    # PROJECT GOALS
+    # ===============================
+    st.markdown("""
+        <h2 style='color:white;'>🔍 Project Goals</h2>
+        <ul style='color:#dddddd; font-size:17px;'>
+            <li>Monitor and analyse pollution patterns across major Indian cities</li>
+            <li>Predict <b>AQI values</b> using Multiple Linear Regression and Random Forest Regression</li>
+            <li>Classify <b>AQI categories</b> using a Decision Tree Classifier</li>
+            <li>Provide an interactive dashboard for exploring AQI insights and comparisons</li>
+        </ul>
+        <br>
+    """, unsafe_allow_html=True)
 
-    # KPI cards
-    st.markdown("### 📌 Quick Snapshot")
+    # ===============================
+    # QUICK SNAPSHOT SECTION (UNIFORM KPI CARDS)
+    # ===============================
+    st.markdown("<h2 style='text-align:center; color:white;'>📊 Quick Snapshot</h2>", unsafe_allow_html=True)
+    st.write("")
+
+    df = pd.read_csv("india_air_quality_cleaned.csv")
+
+    rows = len(df)
+    cities = df["City"].nunique()
+    date_range = f"{df['Year'].min()}–{df['Year'].max()}"
+
     col1, col2, col3, col4 = st.columns(4)
 
-    with col1:
-        st.metric("Rows", f"{len(df):,}")
-    with col2:
-        st.metric("Cities", df["City"].nunique() if "City" in df.columns else "N/A")
-    with col3:
-        st.metric("Date Range", f"{df['Date'].min()} → {df['Date'].max()}" if "Date" in df.columns else "N/A")
-    with col4:
-        st.metric("Target Variable", "AQI & AQI Category")
+    # --- Reusable KPI card ---
+    def kpi_card(title, icon, value):
+        return f"""
+            <div style='
+                border:1px solid #444; 
+                border-radius:12px; 
+                padding:25px; 
+                text-align:center;
+                height:150px;
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+            '>
+                <h4 style='color:#f2f2f2; margin-bottom:8px; font-size:20px;'>
+                    {icon} {title}
+                </h4>
+                <p style='color:white; font-size:20px; margin:0;'>
+                    {value}
+                </p>
+            </div>
+        """
 
-    st.markdown("---")
-    st.info(
-        "Use the sidebar navigation to explore data loading, preprocessing, visual insights, "
-        "and the modelling workflow."
-    )
+    # KPI CARDS (Perfectly uniform)
+    col1.markdown(kpi_card("Rows", "📌", f"{rows:,}"), unsafe_allow_html=True)
+    col2.markdown(kpi_card("Cities", "🏙️", cities), unsafe_allow_html=True)
+    col3.markdown(kpi_card("Date Range", "📅", date_range), unsafe_allow_html=True)
+    col4.markdown(kpi_card("Targets", "🎯", "AQI<br>AQI Category"), unsafe_allow_html=True)
+
+    st.markdown("<br><hr style='border:1px solid #333;'>", unsafe_allow_html=True)
+
+    # ===============================
+    # INDIA MAP (STATIC IMAGE)
+    # ===============================
+    st.markdown("""
+        <h2 style='text-align:center; color:white;'>🗺️ India Map</h2>
+        <p style='text-align:center; color:#cccccc; font-size:16px;'>
+            Geographic overview of major cities across India.
+        </p>
+        <br>
+    """, unsafe_allow_html=True)
+
+    # If using Google Drive → update the path here
+    image_path = "/content/drive/MyDrive/Programming for Data Analysis/Assigment/India Air Quality App/India map.jpg"
+
+    try:
+        st.image(image_path)
+    except:
+        st.warning("⚠️ Map image not found. Please upload 'india_map_dark.png' or correct the file path.")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ===============================
+    # NAVIGATOR FOOTER NOTE
+    # ===============================
+    st.markdown("""
+        <div style='text-align:center; margin-top:20px; padding:15px;
+                    background-color:#102030; border-radius:10px; color:#dddddd;'>
+            Use the sidebar to navigate through data loading, preprocessing,
+            visualisation, modeling, and insights.
+        </div>
+    """, unsafe_allow_html=True)
