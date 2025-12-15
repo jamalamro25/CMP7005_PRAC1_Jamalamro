@@ -91,7 +91,7 @@ def app():
     """, unsafe_allow_html=True)
 
     # If using Google Drive → update the path here
-    image_path = "India map.jpg"
+    image_path = "india_map_dark.png"
 
     try:
         st.image(image_path)
@@ -110,4 +110,5 @@ def app():
             visualisation, modeling, and insights.
         </div>
     """, unsafe_allow_html=True)
+
 
