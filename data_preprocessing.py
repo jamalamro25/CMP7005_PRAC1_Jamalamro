@@ -1,37 +1,81 @@
 import streamlit as st
-from data_utils import load_data
+import pandas as pd
 
-def app():
-    st.title("🧹 Data Preprocessing")
-    st.caption("Overview of cleaning steps and engineered features used in modelling.")
+# ======================================================
+# DATA PREPROCESSING PAGE
+# ======================================================
+def app(df=None):
 
-    df = load_data()
+    # Load data if not passed from MultiApp
+    if df is None:
+        df = pd.read_csv("india_air_quality_cleaned.csv")
 
-    st.markdown("### 🧼 Cleaning Summary")
+    st.title("🧼 Data Preprocessing & Feature Engineering")
+    st.write("Summary of the data cleaning and feature engineering steps applied before analysis and modelling.")
+
+    st.markdown("---")
+
+    # ======================================================
+    # CLEANING SUMMARY (UPDATED – NO FORWARD FILL)
+    # ======================================================
+    st.subheader("🧼 Cleaning Summary")
+
     st.markdown(
         """
         **Key preprocessing steps applied in the notebook (mirrored here conceptually):**
-        - Handled missing values using forward fill / interpolation where appropriate  
-        - Removed obvious outliers based on domain thresholds  
-        - Converted `Date` to proper datetime and extracted **Year, Month, Day, Season**  
-        - Created **lag features**: `AQI_Lag1`, `AQI_Lag7`  
-        - Created **region dummies**: `Region_West`, `Region_East`, ...  
-        - Encoded **AQI_Bucket** for classification  
+
+        - Removed rows with critical missing values in key pollutant and AQI fields  
+        - Ensured all pollutant variables were converted to numeric format  
+        - Converted **Date** to proper datetime format  
+        - Extracted temporal components: **Year, Month, Day, and Season**  
+        - Removed obvious outliers using domain-informed thresholds for pollutant concentrations  
+        - Created temporal **lag features** to capture AQI persistence:
+          - `AQI_Lag1` – previous day AQI  
+          - `AQI_Lag7` – AQI from the previous week  
+        - Engineered additional features to support regression and classification models  
+        - Encoded **AQI_Bucket** as the target variable for classification tasks  
         """
     )
 
-    st.markdown("### 🧬 Engineered Feature Columns (Preview)")
-    model_features = [
-        "AQI", "AQI_Lag1", "AQI_Lag7",
-        "PM2.5", "PM10", "CO", "NO2", "O3", "SO2", "NO",
-        "Region_West", "Region_East", "Region_North",
-        "Region_Northeast", "Region_South",
-        "Season_Spring", "Month", "Is_Weekend", "AQI_Bucket"
+    st.markdown("---")
+
+    # ======================================================
+    # ENGINEERED FEATURES PREVIEW
+    # ======================================================
+    st.subheader("🧬 Engineered Feature Columns (Preview)")
+
+    engineered_cols = [
+        "AQI",
+        "PM2.5",
+        "PM10",
+        "CO",
+        "NO2",
+        "O3",
+        "SO2",
+        "NO",
+        "Month",
+        "AQI_Bucket"
     ]
 
-    existing = [c for c in model_features if c in df.columns]
-    st.write(f"Total engineered / modelling features found: **{len(existing)}**")
-    st.dataframe(df[existing].head(10))
+    existing_cols = [c for c in engineered_cols if c in df.columns]
 
-    st.markdown("### 🔎 Data Types Check")
-    st.dataframe(df[existing].dtypes.to_frame("dtype"))
+    st.write(f"**Total engineered / modelling features found:** {len(existing_cols)}")
+
+    st.dataframe(
+        df[existing_cols].head(10),
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    # ======================================================
+    # NOTE FOR MODELLING
+    # ======================================================
+    st.info(
+        """
+        **Note:**
+        - No data imputation (e.g. forward fill or interpolation) was applied.
+        - Lag features were preferred to preserve temporal structure and improve predictive performance.
+        - All modelling results shown later are based on this cleaned and engineered dataset.
+        """
+    )
